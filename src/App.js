@@ -1,9 +1,11 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import MainPage from "./MainPage";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
-import PostList from "./PostList";
-import DetailView from "./DetailView";
 import { RecoilRoot, atom, selector, useRecoilState, useRecoilValue } from "recoil";
+
+import MainPage from "./screen/MainPage";
+import PostList from "./screen/PostList";
+import DetailView from "./screen/DetailView";
+
 import styled, { createGlobalStyle } from "styled-components";
 import "./style.css";
 
