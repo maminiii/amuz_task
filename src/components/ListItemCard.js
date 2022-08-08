@@ -24,30 +24,15 @@ const ListItemContainer = styled.div`
     text-align: center;
     color: black;
     padding: 4px 8px;
-`;
-const ListSubItemContainer = styled.div`
-    width: 50px;
-    height: 100%;
-    text-align: center;
-    padding-right: 20px;
-    color: ${(props) => props.color};
+    font-size: 0.65em;
 `;
 
 const ListItemCard = (props) => {
     return (
         <>
-            {props.type === "main" ? (
-                <ListItem key={props.type + props.item}>
-                    <ListItemContainer>{props.item}</ListItemContainer>
-                </ListItem>
-            ) : (
-                <ListItem key={props.type + props.item.id}>
-                    <ListItemContainer>{props.item.title}</ListItemContainer>
-                    <ListSubItemContainer color={props.item.completed ? "blue" : "red"}>
-                        {props.item.completed ? "완료" : "미완료"}
-                    </ListSubItemContainer>
-                </ListItem>
-            )}
+            <ListItem key={props.type + props.item}>
+                <ListItemContainer>{props.item}</ListItemContainer>
+            </ListItem>
         </>
     );
 };

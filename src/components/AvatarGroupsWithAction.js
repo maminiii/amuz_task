@@ -25,7 +25,7 @@ export default function AvatarGroupsWithAction({ commentList }) {
     return (
         <>
             <Indicator />
-            <div>
+            <div className="w-full">
                 <div className="flow-root mt-6">
                     <div style={{ marginBottom: "10px" }}>
                         {`comments: ${commentList.length ? commentList.length : "0"}`}

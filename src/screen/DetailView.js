@@ -1,15 +1,16 @@
 import styled from "styled-components";
+import axios from "axios";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-
 import { useRecoilValue, useRecoilState, atomFamily, useSetRecoilState } from "recoil";
+import { atomIsLoaded, atomCommentList, atomPostList, atomNeedUpdate } from "../data/atoms";
+
 import ListItemCard from "../components/ListItemCard";
 import Header from "../components/Header";
 import FlexBox from "../components/FlexBox";
 import Description from "../components/Description";
-import axios from "axios";
 import AvatarGroupWithAction from "../components/AvatarGroupsWithAction";
-import { atomIsLoaded, atomCommentList, atomPostList, atomNeedUpdate } from "../data/atoms";
+import TextAreaWithAvatar from "../components/TextAreaWithAvatar";
 
 const LinkArrow = styled(Link)`
     position: absolute;
@@ -32,7 +33,7 @@ const LinkArrow = styled(Link)`
 
 const LinkContainer = styled(Link)`
     text-decoration: none;
-    width: 50%;
+    width: 90%;
     margin: 10px;
     &:hover {
         &.none {
@@ -57,32 +58,13 @@ const NavContainer = styled.div`
     border-radius: 100%;
 `;
 
-const Title = styled.h1`
-    font-size: 1.5em;
-    text-align: center;
-`;
-const DescContainer = styled.p`
-    padding: 10px;
-    margin: 5px 15px;
-    max-width: 60vw;
-    text-align: center;
-    border-radius: 30px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-`;
 const PostContainer = styled.div``;
-const CompletedContainer = styled.div`
-    width: 100%;
-    text-align: right;
-    color: ${(props) => props.color};
-    margin-right: 10px;
-`;
 
 const PreviewContainer = styled(FlexBox).attrs({
     justify: "center",
 })`
     width: 100%;
     margin-top: 50px;
-    padding: 0 50px;
 `;
 const NavLabel = styled.div`
     width: 100%;
@@ -168,10 +150,10 @@ const DetailView = () => {
             <PostPageContainer>
                 <FlexBox direction="column">
                     <PostContainer>
-                        <FlexBox direction="row" style={{ flex: "60% 40%" }}>
+                        <FlexBox direction="row" align="flex-start" style={{ overflow: "hidden" }}>
                             <FlexBox
                                 direction="column"
-                                style={{ width: "60%", padding: "20px 24px" }}
+                                style={{ flexBasis: "60%", padding: "20px 24px", height: "100%" }}
                             >
                                 <FlexBox align="flex-start" style={{ position: "relative" }}>
                                     <LinkArrow
@@ -195,41 +177,45 @@ const DetailView = () => {
                                         </FlexBox>
                                     </LinkArrow>
                                 </FlexBox>
+                                <PreviewContainer>
+                                    <FlexBox direction="column" style={{ width: "100%" }}>
+                                        <NavLabel>{"Prev"}</NavLabel>
+                                        <LinkContainer
+                                            className={prevPost?.empty ? "none" : ""}
+                                            to={`/postlist/${userId}/detailview/${itemIdx - 1}`}
+                                        >
+                                            <ListItemCard
+                                                style={{ width: "100%" }}
+                                                item={prevPost?.empty ? "no-item" : prevPost.title}
+                                                type="main"
+                                            ></ListItemCard>
+                                        </LinkContainer>
+                                    </FlexBox>
+
+                                    <FlexBox direction="column" style={{ width: "100%" }}>
+                                        <NavLabel>{"Next"}</NavLabel>
+                                        <LinkContainer
+                                            className={nextPost?.empty ? "none" : ""}
+                                            to={`/postlist/${userId}/detailview/${itemIdx + 1}`}
+                                        >
+                                            <ListItemCard
+                                                item={nextPost?.empty ? "no-item" : nextPost.title}
+                                                type="main"
+                                            ></ListItemCard>
+                                        </LinkContainer>
+                                    </FlexBox>
+                                </PreviewContainer>
                             </FlexBox>
 
-                            <div style={{ padding: "10px", width: "40%" }}>
+                            <FlexBox
+                                direction="column"
+                                style={{ padding: "10px", flexBasis: "40%", maxWidth: "400px" }}
+                            >
+                                <TextAreaWithAvatar />
                                 <AvatarGroupWithAction commentList={commentList} />
-                            </div>
+                            </FlexBox>
                         </FlexBox>
                     </PostContainer>
-                    <PreviewContainer>
-                        <FlexBox direction="column" style={{ width: "50%" }}>
-                            <NavLabel>{"Prev"}</NavLabel>
-                            <LinkContainer
-                                className={prevPost?.empty ? "none" : ""}
-                                to={`/postlist/${userId}/detailview/${itemIdx - 1}`}
-                            >
-                                <ListItemCard
-                                    style={{ width: "100%" }}
-                                    item={prevPost?.empty ? "no-item" : prevPost.title}
-                                    type="main"
-                                ></ListItemCard>
-                            </LinkContainer>
-                        </FlexBox>
-
-                        <FlexBox direction="column" style={{ width: "50%" }}>
-                            <NavLabel>{"Next"}</NavLabel>
-                            <LinkContainer
-                                className={nextPost?.empty ? "none" : ""}
-                                to={`/postlist/${userId}/detailview/${itemIdx + 1}`}
-                            >
-                                <ListItemCard
-                                    item={nextPost?.empty ? "no-item" : nextPost.title}
-                                    type="main"
-                                ></ListItemCard>
-                            </LinkContainer>
-                        </FlexBox>
-                    </PreviewContainer>
                 </FlexBox>
             </PostPageContainer>
         </>

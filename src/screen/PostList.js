@@ -1,31 +1,19 @@
 import styled from "styled-components";
+import axios from "axios";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useRecoilValue, useRecoilState } from "recoil";
+import { atomPostList, atomUserList, atomIsLoaded } from "../data/atoms";
 
-import { useRecoilValue } from "recoil";
-import ListItemCard from "../components/ListItemCard";
+import Indicator from "../components/Indicator";
 import Header from "../components/Header";
 import Tabs from "../components/Tabs";
-import AvatarGroupsWithAction from "../components/AvatarGroupsWithAction";
 import SimpleWithIcon from "../components/SimpleWithIcon";
-import { atomPostList, atomUserList } from "../data/atoms";
-
-const FilterButton = styled.button`
-    border: none;
-    margin-right: 10px;
-    border-radius: 30px;
-    padding: 5px 8px;
-    box-sizing: border-box;
-    &.clicked {
-        background-color: pink;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        color: white;
-    }
-`;
 
 const PostList = () => {
     const { userId } = useParams();
-    const postTotalList = useRecoilValue(atomPostList);
+    const [isLoaded, setIsLoaded] = useRecoilState(atomIsLoaded);
+    const [posts, setPosts] = useRecoilState(atomPostList);
     const userList = useRecoilValue(atomUserList);
     const [postList, setPostList] = useState([]);
     const [tabIdx, setTabIdx] = useState(0);
@@ -34,21 +22,59 @@ const PostList = () => {
         { name: "완료", current: false },
         { name: "미완료", current: false },
     ]);
+
+    const fetchData = async () => {
+        try {
+            const res = await axios.get("https://jsonplaceholder.typicode.com/todos");
+
+            let postList = userList.map((userId) => {
+                let newArr = [];
+                let i = 0;
+                res.data.forEach((item) => {
+                    if (item.userId === userId.id) {
+                        newArr.push({
+                            id: item.id,
+                            postId: i,
+                            title: item.title,
+                            completed: item.completed,
+                        });
+                        i++;
+                    }
+                });
+                return newArr;
+            });
+            setPosts(postList);
+            sessionStorage.setItem("postList", JSON.stringify(postList));
+
+            setIsLoaded(false);
+        } catch (e) {
+            console.log("##error", e);
+        }
+    };
+
     useLayoutEffect(() => {
-        setPostList(postTotalList[userId - 1]);
+        setIsLoaded(true);
+    }, []);
+
+    useLayoutEffect(() => {
+        if (isLoaded) fetchData(isLoaded);
+    }, [isLoaded]);
+
+    useLayoutEffect(() => {
+        setPostList(posts[userId - 1]);
     }, [userId]);
 
     useEffect(() => {
         switch (tabIdx) {
             case 0:
-                setPostList(postTotalList[userId - 1]);
+                setPostList(posts[userId - 1]);
                 break;
             case 1: {
-                setPostList(postTotalList[userId - 1].filter((item) => item.completed));
+                setPostList(posts[userId - 1].filter((item) => item.completed));
                 break;
             }
             case 2:
-                setPostList(postTotalList[userId - 1].filter((item) => !item.completed));
+                setPostList(posts[userId - 1].filter((item) => !item.completed));
                 break;
         }
         setTabs((prev) => {
@@ -68,6 +94,7 @@ const PostList = () => {
 
     return (
         <>
+            <Indicator />
             <Header
                 title={`Post-List of "${userList[Number(userId) - 1].name}"`}
                 subtitle={`Number of Posts: ${postList.length}`}
@@ -75,18 +102,6 @@ const PostList = () => {
             <Tabs handleClick={handleClick} tabs={tabs} />
             <div style={{ width: "100%", height: "20px" }}></div>
             <SimpleWithIcon postList={postList} userId={userId} />
-            {/* <AvatarGroupsWithAction postList={postList} userId={userId} /> */}
-            {/* {postList.map((item) => {
-                return (
-                    <Link
-                        to={`/postlist/${userId}/detailview/${item.id}`}
-                        key={item.id}
-                        style={{ textDecoration: "none" }}
-                    >
-                        <ListItemCard item={item} type="post"></ListItemCard>
-                    </Link>
-                );
-            })} */}
         </>
     );
 };
